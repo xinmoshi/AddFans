@@ -9,17 +9,15 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->setWindowTitle("增粉提示器");
 
-    auto network_manager = new QNetworkAccessManager();
-    QNetworkRequest network_request;
+    network_manager = new QNetworkAccessManager(this);
 
     //设置头信息
     network_request.setHeader(QNetworkRequest::ContentLengthHeader,"application/x-www-from-urlencoded");
     //设置url
     network_request.setUrl(QUrl("http://www.baidu.com"));
 
-    connect(network_manager, &QNetworkAccessManager::finished, this, &MainWindow::replyFinished);
-
-    network_manager->get(network_request);
+    connect(network_manager, SIGNAL(finished(QNetworkReply*)),
+              this, SLOT(replyFinished(QNetworkReply*)));
 
     _timer = new QTimer();
     _timer->setInterval(3000);
@@ -87,6 +85,7 @@ void MainWindow::onTimerOut()
 
     //qDebug()<< "AppId=" << AppIdText << "  AppSecret=" << AppSecretText;
 
+    network_manager->get(network_request);
 
     _time ++;
     //大于本地 增粉
@@ -152,21 +151,31 @@ void MainWindow::OnChangeAddURL()
 
 void MainWindow::OnStart()
 {
-    ui->AppIdText->setEnabled(false);
-    ui->AppSecretText->setEnabled(false);
-    ui->ReduceMusicURL->setEnabled(false);
-    ui->AddMusicURL->setEnabled(false);
 
-    _timer->start();
 
-    if(ui->AppIdText->text()=="" || )
+    qDebug() << ui->AppIdText->text();
+
+    if(ui->AppIdText->text()=="" && ui->AppSecretText->text()!="")
     {
-        ui->MessageTip->text() = "AppID不能为空";
+        ui->MessageTip->setText("AppID不能为空");
     }
-    else if(ui->AppSecretText->text()=="")
+    else if(ui->AppIdText->text()!="" && ui->AppSecretText->text()=="")
     {
-
+        ui->MessageTip->setText("AppSecret不能为空");
     }
+    else if(ui->AppIdText->text()==""||ui->AppSecretText->text()=="")
+    {
+         ui->MessageTip->setText("AppID和AppSecret不能为空");
+    }
+    else
+    {
+        ui->AppIdText->setEnabled(false);
+        ui->AppSecretText->setEnabled(false);
+        ui->ReduceMusicURL->setEnabled(false);
+        ui->AddMusicURL->setEnabled(false);
+        _timer->start();
+    }
+
 }
 
 void MainWindow::OnStop()

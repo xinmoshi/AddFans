@@ -38,6 +38,9 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+
+    QNetworkAccessManager *network_manager;
+    QNetworkRequest network_request;
     //计时器
     QTimer *_timer;
     //音乐播放地址
